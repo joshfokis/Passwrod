@@ -17,22 +17,32 @@ func Ask(question string) string {
 
 // main func for passwrod
 func main() {
-	password := []byte(Ask("Please enter your password"))
+	// password := []byte(Ask("Please enter your password"))
 	
 	//vault := Ask("Please enter your vault location")
 	
-	P2Encrypt := Ask("enter Password to encrypt: ")
+	// P2Encrypt := Ask("enter Password to encrypt: ")
 
 	
-	encryptedPassword, err := P.EncryptPassword([]byte(P2Encrypt), password)
-	if err != nil {
-		fmt.Printf("%q", err)
-	}
-	fmt.Printf("%q", encryptedPassword)
+	// encryptedPassword, err := P.EncryptPassword([]byte(P2Encrypt), password)
+	// if err != nil {
+	// 	fmt.Printf("%q", err)
+	// }
+	// fmt.Printf("%q", encryptedPassword)
 
-	decryptedPassword, err := P.DecryptPassword(encryptedPassword, password)
-	if err != nil {
-		fmt.Printf("%q", err)
+	// decryptedPassword, err := P.DecryptPassword(encryptedPassword, password)
+	// if err != nil {
+	// 	fmt.Printf("%q", err)
+	// }
+	// fmt.Printf("%q", decryptedPassword)
+
+	entry := P.PasswordEntry{
+		Name: "test",
+		Site: "www.example.com",
+		Username: "joshfokis",
+		Password: "password",
+		Category: "website",
 	}
-	fmt.Printf("%q", decryptedPassword)
+
+	fmt.Printf("%q", P.WriteEntry(&entry))
 }

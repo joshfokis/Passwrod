@@ -147,10 +147,10 @@ func DecryptPasswordbak(keyString string, passwordToDecrypt string) string {
 }
 
 // WriteEntry function to write the entry to file
-func WriteEntry(password string) string {
-	return "Success"
-}
+func WriteEntry(entry *PasswordEntry) string {
 
+	return entry.Name
+}
 // GetEntry function to retrieve the entries
 func GetEntry(password string) string {
 	return "Success"
