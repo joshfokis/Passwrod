@@ -8,6 +8,7 @@ import (
 	"crypto/sha256"
     "encoding/json"
 
+    "bufio"
 	"errors"
 	"fmt"
     "io"
@@ -16,14 +17,14 @@ import (
 	// "github.com/vmihailenco/msgpack/v5"
 )
 
-// myError func for KISS error printing
+// myError func for KISS/DRY error printing
 func myError(err error) {
     if err != nil {
         fmt.Printf("%q", err)
     }
 }
 
-// Ask function to KISS for asking user input
+// Ask function to KISS/DRY for asking user input
 func Ask(question string) string {
 	var word string
 	fmt.Println(question)
@@ -37,8 +38,8 @@ func Passwrod(w string) string {
 }
 
 // UnlockVault func
-func UnlockVault(vault string) os.FileInfo {
-	d,e := os.Stat(vault)
+func (vault *Vault) UnlockVault() os.FileInfo {
+    d,e := os.Stat(vault.File)
 	myError(e)
 	
 	fmt.Printf("%q", d)
@@ -114,24 +115,48 @@ func DecryptPassword(ciphertext []byte, key []byte) (plaintext []byte, err error
     )
 }
 
-// WriteEntry function to write the entry to file
-func (vault Vault) WriteEntry(entry *PasswordEntry) string {
+// ClearFile function to write the entry to file
+func ClearFile(filename string) {
+    var buf []string
+    f,_ := os.Open(filename)
+    scanner := bufio.NewScanner(f)
+    for scanner.Scan() {
+        line := scanner.Text()
+        buf = append(buf, line)
+    }
+    for s := 1; s < len(buf); s++ {
+        nf, _ := os.OpenFile(filename, os.O_WRONLY, 0666)
+        defer nf.Close()
+        _, err := nf.WriteString("")
+        myError(err)
+    }
+}
 
-    e, err := json.Marshal(entry)
+// SaveEntries function to save to file
+func (vault *Vault) SaveEntries() string {
+    ClearFile(vault.File)
+
+    e, err := json.Marshal(vault.Entries)
 	myError(err)
      
-    file,err := os.OpenFile(vault.File, os.O_RDWR|os.O_CREATE|os.O_APPEND, 0666)
+    file,err := os.OpenFile(vault.File, os.O_RDWR|os.O_CREATE, 0666)
 	myError(err)
     defer file.Close()
 
     _, err = file.Write(e)
 	myError(err)
     
+	return "Success"
+}
+// AddEntry function to write the entry to file
+func (vault *Vault) AddEntry(entry PasswordEntry) string {
+    vault.Entries = append(vault.Entries, entry)
+    vault.SaveEntries()
 	return entry.Name
 }
 
-// GetEntry function to retrieve the entries
-func (vault Vault) GetEntry(name string) string {
+// LoadEntries function loads the entries into the Vault
+func (vault *Vault) LoadEntries() {
     var entries []PasswordEntry
     file, err := os.Open(vault.File) 
     myError(err)
@@ -140,23 +165,58 @@ func (vault Vault) GetEntry(name string) string {
     jsonParser := json.NewDecoder(file)
     
     _ = jsonParser.Decode(&entries)
-    
-    for _, entry := range entries {
+    vault.Entries = entries
+
+}
+
+// GetEntry function to retrieve the entries
+func (vault *Vault) GetEntry(name string) (int, PasswordEntry) {
+
+    for index, entry := range vault.Entries {
         fmt.Printf("\n%q\n", entry.Name)
         if entry.Name == name {
-            return entry.Name
+            // r,_ := json.Marshal(entry) 
+            return index, entry
         }
     }
     // fmt.Printf("\n%q\n", entries)
-    return ""
+    return 99999, PasswordEntry{
+        Name: "Not Found",
+        Site: "Not Found",
+        Username: "Not Found",
+        Password: []byte("Not Found"),
+        Category: "Not Found",
+    }
 }
 
 // UpdateEntry function to retrieve the entries
-func UpdateEntry(password string) string {
+func (vault *Vault) UpdateEntry(name string) string {
+    index, _ := vault.GetEntry(name)
+
+    newEntry := &vault.Entries[index]
+    *newEntry = PasswordEntry{
+        Name: "Not Found",
+        Site: "Not Found",
+        Username: "Not Found",
+        Password: []byte("Not Found"),
+        Category: "Not Found",
+    }
+
+    fmt.Printf("\n%q\n", newEntry)
+    
+    vault.SaveEntries()
 	return "Success"
 }
 
 // DeleteEntry function to retrieve the entries
-func DeleteEntry(password string) string {
+func (vault *Vault) DeleteEntry(entry string) string {
+    var ents []PasswordEntry
+    index, _ := vault.GetEntry(entry)
+    for ind, ent := range vault.Entries {
+        if ind != index {
+           ents = append(ents, ent)
+        }
+    }
+    vault.Entries = ents 
 	return "Success"
 }

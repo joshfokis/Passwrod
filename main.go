@@ -15,10 +15,26 @@ func main() {
 	
 	vault := P.Vault{
 		MasterPassword: password,
-		File: P.UnlockVault(P.Ask("Please enter your vault location")).Name(),
+		File: "vault.json",
 	}
+	vault.UnlockVault()
+	vault.LoadEntries()
+	// index, _ := vault.GetEntry("Test3")
 
-	fmt.Printf("\n\n found %q", vault.GetEntry("Test2"))
+	newEntry := P.PasswordEntry{
+		Name: "test",
+		Site: "www.example.com",
+		Username: "joshfokis",
+		Password: []byte("password"),
+		Category: "website",
+	}
+	vault.AddEntry(newEntry)
+	vault.DeleteEntry("Test2")
+	// fmt.Printf("\n\n found %q", index)
+	// vault.UpdateEntry("Test2", index)
+	for _, ent := range vault.Entries {
+		fmt.Printf("\n%q\n", ent)
+	}
 	// P.Ask("Please enter your vault location")
 	
 	// P2Encrypt := P.Ask("enter Password to encrypt: ")

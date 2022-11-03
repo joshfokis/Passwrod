@@ -4,7 +4,7 @@ package passwrod
 type Vaulter interface {
 	UnlockVault() 
 	LockeVault()
-	WriteEntry()
+	AddEntry()
 	GetEntry()
 	DeleteEntry()
 	UpdateEntry()

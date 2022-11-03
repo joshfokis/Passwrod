@@ -1,9 +1,5 @@
 package passwrod
 
-// PasswordEntries struct to layout the form for password entries
-type PasswordEntries struct {
-	Entries []PasswordEntry
-}
 // PasswordEntry struct to layout the form for password entries
 type PasswordEntry struct {
 	Name		string	
@@ -17,4 +13,5 @@ type PasswordEntry struct {
 type Vault struct {
 	File string
 	MasterPassword []byte
+	Entries []PasswordEntry
 }
