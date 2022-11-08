@@ -169,6 +169,15 @@ func (vault *Vault) LoadEntries() {
 
 }
 
+// ListEntries returns a list of the entry names
+func (vault *Vault) ListEntries() []string {
+    var entries []string
+    for _, entry := range vault.Entries {
+        entries = append(entries, entry.Name)
+    }
+    return entries
+}
+
 // GetEntry function to retrieve the entries
 func (vault *Vault) GetEntry(name string) (int, PasswordEntry) {
 

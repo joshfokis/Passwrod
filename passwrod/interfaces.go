@@ -5,6 +5,7 @@ type Vaulter interface {
 	UnlockVault() 
 	LockeVault()
 	AddEntry()
+	ListEntries()
 	GetEntry()
 	DeleteEntry()
 	UpdateEntry()
